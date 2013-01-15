@@ -1,21 +1,23 @@
 #ifndef GMR_HPP_
 #define GMR_HPP_
 
+#include <map>
 #include <vector>
 #include <string>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
+#define TR(i, its) for(typeof(its.begin()) i = its.begin(); i != its.end(); i++)
+
 namespace Gmr
 {
-    struct State
+    struct PState
     {
         boost::numeric::ublas::vector<float> r;//r es la posición
         boost::numeric::ublas::vector<float> s;//s es el spin
-        float s_norm;
     };
     
-    struct Traits
+    struct PTraits
     {
         std::string nombre;
         float charge;
@@ -24,13 +26,13 @@ namespace Gmr
 
     struct Particle
     {
-        State state;
-        State new_state;
-        Traits &traits;
-        std::vector<Particle*> nbh;//el asterisco es por si modifico uno se modifiquen todos
+        PState state;
+        PState old_state;
+        PTraits &traits;
+        std::vector<Particle*> nbh;
 
-        void update_state (State (*new_state)(State &));
-        void commit_state ();
+        void update_state (PState (*new_state)(PState &));
+        void rollback_state ();
     };
 
     struct Field
@@ -39,16 +41,41 @@ namespace Gmr
         boost::numeric::ublas::vector<float> direction;
     };
 
-    typedef float (*FPInteraction)(Particle &, Field &);
-
+    typedef float (*PFInteraction)(Particle &, Field &);
     typedef float (*PPInteraction)(Particle &, Particle &);
+    typedef void  (*OnEventCB)(const Particle&, float);
+    typedef std::pair<PFInteraction, Field &> IFPair;
 
-    struct hamiltonian
+    struct Hamiltonian
     {
         std::vector<PPInteraction> pp_interactions;
-        std::vector<FPInteraction> fp_interactions;
+        std::map<PFInteraction, Field &> fp_interactions;
     };
 
+    float energy_contribution (Particle &p, Hamiltonian &H);
+
+    class System
+    {
+        Hamiltonian hamiltonian;
+        std::vector<Particle> particles;
+        float thermal_energy;
+
+    public:
+        System();
+        ~System();
+    
+        void mcStep (PState (*new_state)(PState &), OnEventCB);
+
+        float energy ();
+
+        const Hamiltonian& getHamiltonian();
+        const std::vector<Particle>& getParticles();
+        float getThermalEnergy();
+
+        void setHamiltonian (const Hamiltonian&);
+        void setParticles   (const std::vector<Particle>&);
+        void setThermalEnergy (const float);
+    };
 
 }
 
