@@ -2,6 +2,7 @@
 #define GMR_HPP_
 
 #include <map>
+#include <cmath>
 #include <vector>
 #include <string>
 #include <boost/numeric/ublas/vector.hpp>
@@ -19,7 +20,7 @@ namespace Gmr
     
     struct PTraits
     {
-        std::string nombre;
+        std::string name;
         float charge;
         float s_norm;
     };
@@ -43,13 +44,14 @@ namespace Gmr
 
     typedef float (*PFInteraction)(Particle &, Field &);
     typedef float (*PPInteraction)(Particle &, Particle &);
+    typedef bool (*NBHTest)(Particle &, Particle &);
     typedef void  (*OnEventCB)(const Particle&, float);
     typedef std::pair<PFInteraction, Field &> IFPair;
 
     struct Hamiltonian
     {
         std::vector<PPInteraction> pp_interactions;
-        std::map<PFInteraction, Field &> fp_interactions;
+        std::map<PFInteraction, Field &> pf_interactions;
     };
 
     float energy_contribution (Particle &p, Hamiltonian &H);
@@ -62,10 +64,11 @@ namespace Gmr
 
     public:
         System();
+        System(int, int);
         ~System();
     
         void mcStep (PState (*new_state)(PState &), OnEventCB);
-
+        void updateNBH (NBHTest);
         float energy ();
 
         const Hamiltonian& getHamiltonian();
@@ -73,10 +76,12 @@ namespace Gmr
         float getThermalEnergy();
 
         void setHamiltonian (const Hamiltonian&);
-        void setParticles   (const std::vector<Particle>&);
+        // void setParticles   (const std::vector<Particle>&);
         void setThermalEnergy (const float);
     };
 
+    const PTraits eTraits = {name: "Electrón", charge: -1, s_norm: 1};
+    const PTraits iTraits = {name: "Ión", charge: +1, s_norm: 1};
 }
 
 #endif
