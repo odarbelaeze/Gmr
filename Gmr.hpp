@@ -3,6 +3,7 @@
 
 #include <map>
 #include <cmath>
+#include <cstdlib>
 #include <vector>
 #include <string>
 #include <boost/numeric/ublas/vector.hpp>
@@ -82,6 +83,7 @@ namespace Gmr
 
     const PTraits eTraits = {name: "Electrón", charge: -1, s_norm: 1};
     const PTraits iTraits = {name: "Ión", charge: +1, s_norm: 1};
+    boost::numeric::ublas::vector<float> rand_unit_vec ();
 }
 
 #endif

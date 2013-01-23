@@ -106,11 +106,22 @@ namespace Gmr
             TR (o, this -> particles) if (nbht(*p, *o)) p -> nbh .push_back (&(*o));
         }
     }
+
+    boost::numeric::ublas::vector<float> rand_unit_vec ()
+    {
+        boost::numeric::ublas::vector<float> r(3);
+        float theta = 2.0f * M_PI * drand48();
+        float phi   = 1.0f * M_PI * drand48();
+        r(0) = sin (theta) * cos (phi);
+        r(1) = sin (theta) * sin (phi);
+        r(2) = cos (theta);
+        return r;
+    }
 }
 
-int main(int argc, char const *argv[])
-{
-    std::cout << Gmr::eTraits.name << std::endl;
-    std::cout << Gmr::iTraits.name << std::endl;
-    return 0;
-}
+// int main(int argc, char const *argv[])
+// {
+//     std::cout << Gmr::eTraits.name << std::endl;
+//     std::cout << Gmr::iTraits.name << std::endl;
+//     return 0;
+// }
