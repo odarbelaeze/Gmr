@@ -1,2 +1,5 @@
 bin/*
 dat/*
+*.a
+*.o
+json_test

@@ -26,5 +26,7 @@ int main(int argc, char const *argv[])
         std::cout << root.toStyledString () << std::endl;
     }
 
+    std::cout << root["system"]["dimensions"]["width"].asInt() << std::endl;
+
     return 0;
 }
