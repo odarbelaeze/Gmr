@@ -108,7 +108,7 @@ void System::updateNBH()
         {
             if (p != other)
             {
-                if (norm_2(p -> state.r - other -> state.r) < cut_off)
+                if (norm_2(p -> state.r - other -> state.r) <= cut_off)
                 {
                     p -> nbh.push_back(&(*other));
                 }
