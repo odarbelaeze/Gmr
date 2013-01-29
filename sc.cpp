@@ -14,26 +14,21 @@ int main(int argc, char const *argv[])
     int z = 3;
 
     vector<float> r(3);
-
-    vector<typeof(r)> T((x+1)*(y+1)*(z+1));
+    vector<typeof(r)> rs;
     
-    int c = 0;
-    for (int i = 0; i <= x; ++i)
+    for (int i = 0; i < x; ++i)
     {
-        for (int j = 0; j <= y; ++j)
+        for (int j = 0; j < y; ++j)
         {
-            for (int k = 0; k <= z; ++k)
+            for (int k = 0; k < z; ++k)
             {
-                // std::cout << i << "\t" << j << "\t" << k << std::endl;
                 r(0) = i;
                 r(1) = j;
                 r(2) = k;
-
-                T[c] = r;
-                c++;
+                rs.push_back(r);
             }
         }
     }
-    std::cout << T << std::endl;
+    std::cout << rs << std::endl;
     return 0;
 }
