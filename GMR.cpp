@@ -117,6 +117,48 @@ void System::updateNBH()
     }
 }
 
+void System::create_system(Json::Value & File){
+    Json::Value root;
+    Json::Reader reader;
+
+    std::ifstream config_doc ("docs/descriptor_example.json");
+
+    int width = root["system"]["dimensions"]["width"].asInt();
+    int lenght = root["system"]["dimensions"]["lenght"].asInt();
+    int height = root["system"]["dimensions"]["height"].asInt();
+
+    Particle P;
+    
+
+    //para los iones
+    for (int i = 0; i < width; ++i)
+    {
+        for (int j = 0; j < lenght; ++j)
+        {
+            for (int k = 0; k < height; ++k)
+            {
+                P.state.r(0) = i;
+                P.state.r(1) = j;
+                P.state.r(2) = k;
+                P.traits = iTraits;
+
+                this -> particles.push_back(P);
+            }
+        }
+    }
+
+    int cantidad_e = 10;
+
+    for (int i = 0; i < cantidad_e; ++i)
+    {
+        P.state.r(0) = drand48() * width;
+        P.state.r(1) = drand48() * lenght;
+        P.state.r(2) = drand48() * height;
+        P.traits = eTraits;
+        this -> particles.push_back(P);
+    }
+}
+
 
 int main(int argc, char const *argv[])
 {
