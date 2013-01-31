@@ -117,11 +117,7 @@ void System::updateNBH()
     }
 }
 
-void System::create_system(Json::Value & File){
-    Json::Value root;
-    Json::Reader reader;
-
-    std::ifstream config_doc ("docs/descriptor_example.json");
+void System::create_system(Json::Value & root){
 
     int width = root["system"]["dimensions"]["width"].asInt();
     int lenght = root["system"]["dimensions"]["lenght"].asInt();
@@ -147,9 +143,10 @@ void System::create_system(Json::Value & File){
         }
     }
 
-    int cantidad_e = 10;
+    // Fetch this from the root
+    int e_count = root["system"]["electron_count"].asInt();
 
-    for (int i = 0; i < cantidad_e; ++i)
+    for (int i = 0; i < e_count; ++i)
     {
         P.state.r(0) = drand48() * width;
         P.state.r(1) = drand48() * lenght;
