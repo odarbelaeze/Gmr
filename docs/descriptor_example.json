@@ -20,6 +20,7 @@
 
         // The number of free electrons is still needed
         "number_of_free_electrons": 1000,
+        "electron_count": 10,
 
         // Lattice spin traits
         // Lattice spin traits structure containing the name spin and charte
