@@ -12,6 +12,8 @@ using namespace boost::numeric::ublas;
 
 int main(int argc, char const *argv[])
 {
+    int l = 1;
+
     srand48(time(NULL));
     int x = 3;
     int y = 3;
@@ -26,9 +28,9 @@ int main(int argc, char const *argv[])
         {
             for (int k = 0; k < z; ++k)
             {
-                r(0) = i;
-                r(1) = j;
-                r(2) = k;
+                r(0) = (i + 0.0f) * l;
+                r(1) = (j + 0.0f) * l;
+                r(2) = (k + 0.0f) * l;
                 rs.push_back(r);
             }
         }

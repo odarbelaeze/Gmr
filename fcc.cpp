@@ -26,24 +26,24 @@ int main(int argc, char const *argv[])
         {
             for (int k = 0; k < z; ++k)
             {
-                r(0) = (i + 0.0) * l;
-                r(1) = (j + 0.0) * l;
-                r(2) = (k + 0.0) * l;
+                r(0) = (i + 0.0f) * l;
+                r(1) = (j + 0.0f) * l;
+                r(2) = (k + 0.0f) * l;
                 rs.push_back(r);
 
-                r(0) = (i + 0.5) * l;
-                r(1) = (j + 0.5) * l;
-                r(2) = (k + 0.0) * l;
+                r(0) = (i + 0.5f) * l;
+                r(1) = (j + 0.5f) * l;
+                r(2) = (k + 0.0f) * l;
                 rs.push_back(r);
 
-                r(0) = (i + 0.0) * l;
-                r(1) = (j + 0.5) * l;
-                r(2) = (k + 0.5) * l;
+                r(0) = (i + 0.0f) * l;
+                r(1) = (j + 0.5f) * l;
+                r(2) = (k + 0.5f) * l;
                 rs.push_back(r);
 
-                r(0) = (i + 0.5) * l;
-                r(1) = (j + 0.0) * l;
-                r(2) = (k + 0.5) * l;
+                r(0) = (i + 0.5f) * l;
+                r(1) = (j + 0.0f) * l;
+                r(2) = (k + 0.5f) * l;
                 rs.push_back(r);
             }
         }

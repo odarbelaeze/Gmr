@@ -14,6 +14,7 @@
 
         // The scale for the structure
         "scale": 1.0,
+        "structure": "SC",
 
         // The cut off radius for the neighboring
         "cut_off_radius": 1.3,

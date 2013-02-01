@@ -30,7 +30,7 @@ struct Particle
 {
     PState state;
     PState old_state;
-    PTraits &traits;
+    PTraits traits;//falta el ampersand
     std::vector<Particle*> nbh;
 
     void update_spin();
@@ -84,6 +84,11 @@ public:
     void setThermalEnergy(const float);
     void setHamiltonian(const Hamiltonian&);
 };
+
+// PTraits& PTraits::operator=(const PTraits& t){
+//     this -> traits = t.traits;
+//     return *this;
+// } //creo que es algo así pero pailangas
 
 vecf rand_vec ();
 

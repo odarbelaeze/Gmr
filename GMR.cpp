@@ -1,9 +1,14 @@
 #include "GMR.hpp"
 
 
+System::System(Json::Value & root)
+{
+    this -> create_system(root);
+}
+
 vecf rand_vec ()
 {
-    boost::numeric::ublas::vector<float> r(3);
+    vecf r(3);
     float theta = 2.0f * M_PI * drand48();
     float phi   = 1.0f * M_PI * drand48();
     r(0) = sin (theta) * cos (phi);
@@ -11,7 +16,6 @@ vecf rand_vec ()
     r(2) = cos (theta);
     return r;
 }
-
 
 void Particle::update_spin()
 {
@@ -23,6 +27,7 @@ void Particle::update_spin()
 
 void Particle::roll_bak()
 {
+    
     this -> state = this -> old_state;
 }
 
@@ -33,7 +38,6 @@ float energy_contribution(Particle &p, Hamiltonian &H, Json::Value &info)
     TR(pfi, H.pf_i) pfi -> first (p, pfi -> second, info);
     return energy;
 }
-
 
 const Hamiltonian& System::getHamiltonian()
 {
@@ -51,11 +55,13 @@ const Hamiltonian& System::getHamiltonian()
 
 void System::setHamiltonian(const Hamiltonian& hamiltonian)
 {
+   
     this -> hamiltonian = hamiltonian;
 }
 
 void System::setThermalEnergy(const float thermal_energy)
 {
+    
     this -> thermal_energy = thermal_energy;
 }
 
@@ -89,13 +95,12 @@ void System::mcStep_thermal (OnEventCB cb)
     }
 }
 
- float System::energy()
- {
+float System::energy()
+{
     float energy = 0;
     TR (p, this -> particles) energy += energy_contribution(*p, this -> hamiltonian, this -> interaction_info);
     return energy;
 }
-
 
 void System::updateNBH()
 {
@@ -117,48 +122,120 @@ void System::updateNBH()
     }
 }
 
-void System::create_system(Json::Value & root){
-
+void System::create_system(Json::Value & root)
+{
     int width = root["system"]["dimensions"]["width"].asInt();
     int lenght = root["system"]["dimensions"]["lenght"].asInt();
     int height = root["system"]["dimensions"]["height"].asInt();
+    int l = root["system"]["scale"].asInt();
+    std::string structure = root["system"]["structure"].asString();
+    Particle p_template;
+    p_template.traits = iTraits;
 
-    Particle P;
+    this -> particles.clear();
     
-
-    //para los iones
-    for (int i = 0; i < width; ++i)
+    if (structure == "SC")
     {
-        for (int j = 0; j < lenght; ++j)
+        for (int i = 0; i < width; ++i)
         {
-            for (int k = 0; k < height; ++k)
+            for (int j = 0; j < lenght; ++j)
             {
-                P.state.r(0) = i;
-                P.state.r(1) = j;
-                P.state.r(2) = k;
-                P.traits = iTraits;
+                for (int k = 0; k < height; ++k)
+                {
+                    p_template.state.r(0) = (i + 0.0f) * l;
+                    p_template.state.r(1) = (j + 0.0f) * l;
+                    p_template.state.r(2) = (k + 0.0f) * l;
+                    p_template.state.s = rand_vec();
+                    this -> particles.push_back(p_template);
 
-                this -> particles.push_back(P);
+                }
             }
         }
     }
+    else if (structure == "BCC")
+    {
+        for (int i = 0; i < width; ++i)
+        {
+            for (int j = 0; j < height; ++j)
+            {
+                for (int k = 0; k < lenght; ++k)
+                {
+                    p_template.state.r(0) = (i + 0.0f) * l;
+                    p_template.state.r(1) = (j + 0.0f) * l;
+                    p_template.state.r(2) = (k + 0.0f) * l;
+                    p_template.state.s = rand_vec();
+                    this -> particles.push_back(p_template);
+                    
 
+                    p_template.state.r(0) = (i + 0.5f) * l;
+                    p_template.state.r(1) = (j + 0.5f) * l;
+                    p_template.state.r(2) = (k + 0.5f) * l;
+                    p_template.state.s = rand_vec();
+                    this -> particles.push_back(p_template);
+                    
+                }
+            }
+        }
+    }
+    else if (structure == "FCC")
+    {
+        for (int i = 0; i < width; ++i)
+        {
+            for (int j = 0; j < height; ++j)
+            {
+                for (int k = 0; k < lenght; ++k)
+                {
+                    p_template.state.r(0) = (i + 0.0f) * l;
+                    p_template.state.r(1) = (j + 0.0f) * l;
+                    p_template.state.r(2) = (k + 0.0f) * l;
+                    p_template.state.s = rand_vec();
+                    this -> particles.push_back(p_template);
+                    
+
+                    p_template.state.r(0) = (i + 0.5f) * l;
+                    p_template.state.r(1) = (j + 0.5f) * l;
+                    p_template.state.r(2) = (k + 0.0f) * l;
+                    p_template.state.s = rand_vec();
+                    this -> particles.push_back(p_template);
+                    
+
+                    p_template.state.r(0) = (i + 0.0f) * l;
+                    p_template.state.r(1) = (j + 0.5f) * l;
+                    p_template.state.r(2) = (k + 0.5f) * l;
+                    p_template.state.s = rand_vec();
+                    this -> particles.push_back(p_template);
+                    
+
+                    p_template.state.r(0) = (i + 0.5f) * l;
+                    p_template.state.r(1) = (j + 0.0f) * l;
+                    p_template.state.r(2) = (k + 0.5f) * l;
+                    p_template.state.s = rand_vec();
+                    this -> particles.push_back(p_template);
+                    
+                }
+            }
+        }
+    }
+    else
+    {
+        
+        std::cout << "You should specific the structure in the Json file" << std::endl;
+    }
+    
     // Fetch this from the root
     int e_count = root["system"]["electron_count"].asInt();
 
+    p_template.traits = eTraits;
     for (int i = 0; i < e_count; ++i)
     {
-        P.state.r(0) = drand48() * width;
-        P.state.r(1) = drand48() * lenght;
-        P.state.r(2) = drand48() * height;
-        P.traits = eTraits;
-        this -> particles.push_back(P);
+        p_template.state.r(0) = drand48() * width;
+        p_template.state.r(1) = drand48() * lenght;
+        p_template.state.r(2) = drand48() * height;
+        this -> particles.push_back(p_template);  
     }
-}
 
-
-int main(int argc, char const *argv[])
-{
-    /* code */
-    return 0;
+    Hamiltonian h_template;
+    
+    // this -> hamiltonian
+    this -> updateNBH();
 }
