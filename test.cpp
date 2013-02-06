@@ -4,6 +4,7 @@
 
 using namespace boost::numeric::ublas;
 
+<<<<<<< HEAD
 float distancia(Particle a, Particle b)
 {
     float dist;
@@ -11,11 +12,15 @@ float distancia(Particle a, Particle b)
     return dist;
 }
 
+=======
+>>>>>>> e29359eab86452b9a1b77c2d7079086d90975496
 int main(int argc, char const *argv[])
 {
     std::vector<Particle> P;
     Json::Value root;
     Json::Reader reader;
+
+    throw BadDescriptor("Ay juemadre!");
 
     std::ifstream config_doc ("docs/descriptor_example.json");
 

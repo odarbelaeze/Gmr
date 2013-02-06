@@ -3,3 +3,8 @@ dat/*
 *.a
 *.o
 json_test
+test
+fcc
+sc
+bcc
+exceptions

@@ -76,7 +76,7 @@ void System::mcStep_thermal (OnEventCB cb)
     {
         old_energy = energy_contribution(*p, this -> hamiltonian, this -> interaction_info);
         p -> update_spin();
-        energy_delta = energy_contribution (*p, this -> hamiltonian, this -> interaction_info) - old_energy;
+        energy_delta = energy_contribution(*p, this -> hamiltonian, this -> interaction_info) - old_energy;
 
         if (energy_delta <= 0)
         {
