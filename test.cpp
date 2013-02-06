@@ -4,8 +4,6 @@
 
 using namespace boost::numeric::ublas;
 
-
-
 int main(int argc, char const *argv[])
 {
     std::vector<Particle> P;

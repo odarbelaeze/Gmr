@@ -14,14 +14,17 @@
 #define TR(i, its) for(typeof(its.begin()) i = its.begin(); i != its.end(); i++)
 typedef boost::numeric::ublas::vector<float> vecf;
 
-class BadDescriptor : public exception
+class BadDescriptor: public std::exception
 {
-    char* error = "Unknown error";
+    const std::string error;
 public:
-    BadDescriptor(const char* _error): error(_error);
+    BadDescriptor(): error("Unknown error") {}
+    BadDescriptor(const std::string _error): error(_error) {}
+    virtual ~BadDescriptor() throw() {}
+
     virtual const char* what() const throw()
     {
-        return sprintf("The descriptor was bad configured: %s", this -> error);
+        return ("The descriptor was bad configured: " + this -> error).data();
     }
 };
 
