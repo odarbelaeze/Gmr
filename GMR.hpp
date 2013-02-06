@@ -66,6 +66,7 @@ private:
 
     void create_system (Json::Value &);     // This will be the actual function in wich the system is created.
 public:
+    System();    // Toca mirar lo de JSON
     System(std::ifstream &);    // Toca mirar lo de JSON
     System(std::istream &);     // Toca mirar lo de JSON
     System(Json::Value &);      // Toca mirar lo de JSON

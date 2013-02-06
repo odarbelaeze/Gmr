@@ -6,6 +6,8 @@ System::System(Json::Value & root)
     this -> create_system(root);
 }
 
+System::~System(){}
+
 vecf rand_vec ()
 {
     vecf r(3);
@@ -124,17 +126,21 @@ void System::updateNBH()
 
 void System::create_system(Json::Value & root)
 {
+    std::cout << "parsing bla bla bla ... ";
+
     int width = root["system"]["dimensions"]["width"].asInt();
     int lenght = root["system"]["dimensions"]["lenght"].asInt();
     int height = root["system"]["dimensions"]["height"].asInt();
     int l = root["system"]["scale"].asInt();
     std::string structure = root["system"]["structure"].asString();
+
+
     Particle p_template;
     p_template.traits = iTraits;
 
     this -> particles.clear();
     
-    if (structure == "SC")
+    if (structure == "sc")
     {
         for (int i = 0; i < width; ++i)
         {
@@ -152,7 +158,7 @@ void System::create_system(Json::Value & root)
             }
         }
     }
-    else if (structure == "BCC")
+    else if (structure == "bcc")
     {
         for (int i = 0; i < width; ++i)
         {
@@ -177,7 +183,7 @@ void System::create_system(Json::Value & root)
             }
         }
     }
-    else if (structure == "FCC")
+    else if (structure == "fcc")
     {
         for (int i = 0; i < width; ++i)
         {
@@ -221,6 +227,7 @@ void System::create_system(Json::Value & root)
         
         std::cout << "You should specific the structure in the Json file" << std::endl;
     }
+    std::cout << "done" << std::endl;
     
     // Fetch this from the root
     int e_count = root["system"]["electron_count"].asInt();
