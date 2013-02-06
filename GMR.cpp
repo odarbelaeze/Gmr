@@ -126,7 +126,6 @@ void System::updateNBH()
 
 void System::create_system(Json::Value & root)
 {
-    std::cout << "parsing bla bla bla ... ";
 
     int width = root["system"]["dimensions"]["width"].asInt();
     int lenght = root["system"]["dimensions"]["lenght"].asInt();
@@ -227,7 +226,7 @@ void System::create_system(Json::Value & root)
         
         std::cout << "You should specific the structure in the Json file" << std::endl;
     }
-    std::cout << "done" << std::endl;
+    
     
     // Fetch this from the root
     int e_count = root["system"]["electron_count"].asInt();

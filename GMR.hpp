@@ -17,6 +17,7 @@ struct PState
 {
     vecf r;
     vecf s;
+    PState(): r(3), s(3) {}
 };
 
 struct PTraits
