@@ -4,6 +4,7 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <cmath>
+#include <exception>
 #include <fstream>
 #include <jsoncpp/json/json.h>
 #include <map>
@@ -12,6 +13,17 @@
 
 #define TR(i, its) for(typeof(its.begin()) i = its.begin(); i != its.end(); i++)
 typedef boost::numeric::ublas::vector<float> vecf;
+
+class BadDescriptor : public exception
+{
+    char* error = "Unknown error";
+public:
+    BadDescriptor(const char* _error): error(_error);
+    virtual const char* what() const throw()
+    {
+        return sprintf("The descriptor was bad configured: %s", this -> error);
+    }
+};
 
 struct PState
 {

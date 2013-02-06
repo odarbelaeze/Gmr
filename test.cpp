@@ -12,6 +12,8 @@ int main(int argc, char const *argv[])
     Json::Value root;
     Json::Reader reader;
 
+    throw BadDescriptor("Ay juemadre!");
+
     std::ifstream config_doc ("docs/descriptor_example.json");
 
     bool parsingSuccessful = reader.parse( config_doc, root, false );
