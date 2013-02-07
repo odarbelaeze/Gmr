@@ -28,16 +28,7 @@ int main(int argc, char const *argv[])
     System A(root);
     P = A.getParticles();
 
-    // TR(i, P)
-    // {
-    //     std::cout   << (*i).traits.name << "\t"
-    //                 << (*i).traits.charge << "\t"
-    //                 << (*i).traits.s_norm << "\t"
-    //                 << (*i).state.r(0) << "\t"
-    //                 << (*i).state.r(1) << "\t"
-    //                 << (*i).state.r(2) << "\t"
-    //                 << std::endl;
-    // }
+    
     int cantidad_e = 0;
     int cantidad_I = 0;
 
@@ -64,27 +55,48 @@ int main(int argc, char const *argv[])
 
     std::cout << std::endl;
     
+    bool problema = false;
     TR(i, P)
     {
         TR(j, (*i).nbh)
         {
-            // if (distancia(*i, **j) > root["system"]["cut_off_radius"].asFloat())
-            // {
-            //     std::cout << "Hay problemas con los vecinos" << std::endl;
-            // }
-            // else
-            // {
-            //     std::cout << "No hay problemas con los vecinos" << std::endl;
-            // }
-
-            std::cout << distancia(*i, **j) << std::endl;
+            if (distancia(*i, **j) > root["system"]["cut_off_radius"].asFloat())
+            {
+                problema = true;
+            }
         }
     }
+    
 
-    // TR(i, P)
-    // {
-    //     std::cout << (*i).nbh.size() << std::endl;
-    // }
+    if (problema == true)
+    {
+        std::cout << "Hay problemas con los vecinos" << std::endl;
+    }
+    else
+    {
+        std::cout << "No hay problemas con los vecinos" << std::endl;   
+    }
+
+    std::cout   << "Nombre:" << "\t"
+                << "Carga:" << "\t"
+                << "Norma Spin:" << "\t"
+                << "x:" << "\t"
+                << "y:" << "\t"
+                << "z:" << "\t"
+                << "Cantidad nbh:"
+                << std::endl;
+
+    TR(i, P)
+    {
+        std::cout   << (*i).traits.name << "\t"
+                    << (*i).traits.charge << "\t"
+                    << (*i).traits.s_norm << "\t"
+                    << (*i).state.r(0) << "\t"
+                    << (*i).state.r(1) << "\t"
+                    << (*i).state.r(2) << "\t"
+                    << (*i).nbh.size()
+                    << std::endl;
+    }
 
     std::cout << std::endl;
 

@@ -121,8 +121,9 @@ void System::updateNBH()
             {
                 if (norm_2(p -> state.r - other -> state.r) <= cut_off)
                 {
-                    std::cout << norm_2(p -> state.r - other -> state.r) << std::endl;
+                    // std::cout << norm_2(p -> state.r - other -> state.r) << std::endl;
                     p -> nbh.push_back(&(*other));
+                    // std::cout << (*p).nbh.size() << std::endl;
                 }
             }
             // std::cout << p->nbh.size() << std::endl;

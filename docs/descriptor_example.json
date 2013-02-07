@@ -38,7 +38,7 @@
             "spin": 1.0,
             "charge": -1.0
         }
-    }
+    },
     // This is gonna be passet to every interaction in the program.
     // So this is gonna contain all every single parameter needed in the
     // interactions.
