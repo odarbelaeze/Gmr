@@ -126,11 +126,24 @@ void System::updateNBH()
 
 void System::create_system(Json::Value & root)
 {
+    int width = 0;
+    int lenght = 0;
+    int height = 0;
+    int l = 0;
+ 
+    this -> system_info = root;
+    this -> interaction_info = root["interaction_info"];
 
-    int width = root["system"]["dimensions"]["width"].asInt();
-    int lenght = root["system"]["dimensions"]["lenght"].asInt();
-    int height = root["system"]["dimensions"]["height"].asInt();
-    int l = root["system"]["scale"].asInt();
+    try {
+        width = root["system"]["dimensions"]["width"].asInt();
+        lenght = root["system"]["dimensions"]["lenght"].asInt();
+        height = root["system"]["dimensions"]["height"].asInt();
+        l = root["system"]["scale"].asInt();
+    }
+    catch (std::exception &e) {
+        std::cout << e.what();
+        throw BadDescriptor("Your system dimensions are bad configured.");
+    }
     std::string structure = root["system"]["structure"].asString();
 
 
@@ -229,7 +242,7 @@ void System::create_system(Json::Value & root)
     
     
     // Fetch this from the root
-    int e_count = root["system"]["electron_count"].asInt();
+    int e_count = root["system"]["number_of_free_electrons"].asInt();
 
     p_template.traits = eTraits;
     for (int i = 0; i < e_count; ++i)

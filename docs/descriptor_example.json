@@ -20,7 +20,6 @@
 
         // The number of free electrons is still needed
         "number_of_free_electrons": 1000,
-        "electron_count": 10,
 
         // Lattice spin traits
         // Lattice spin traits structure containing the name spin and charte
@@ -44,14 +43,15 @@
         // So this is gonna contain all every single parameter needed in the
         // interactions.
         "interaction_info": {
+            "all": {
+                "J": 1.0,
+                "K_0": 1.0,
+                "I_0": 1.0,
+            },
             "zeeman": {
-                
+
             }
         },
 
-        "J": 1.0,
-        "K_0": 1.0,
-        "I_0": 1.0,
-        "e": 50000000000000
     }
 }
