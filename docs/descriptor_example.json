@@ -16,7 +16,7 @@
         "scale": 1.0,
 
         // The cut off radius for the neighboring
-        "cut_off_radius": 1.3,
+        "cut_off_radius": 3,
 
         // The number of free electrons is still needed
         "number_of_free_electrons": 1000,
@@ -46,12 +46,11 @@
             "all": {
                 "J": 1.0,
                 "K_0": 1.0,
-                "I_0": 1.0,
+                "I_0": 1.0
             },
             "zeeman": {
 
             }
-        },
-
+        }
     }
 }

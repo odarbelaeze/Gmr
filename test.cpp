@@ -6,9 +6,7 @@ using namespace boost::numeric::ublas;
 
 float distancia(Particle a, Particle b)
 {
-    float dist;
-    dist = norm_2(a.state.r - b.state.r);
-    return dist;
+    return norm_2(a.state.r - b.state.r);
 }
 
 int main(int argc, char const *argv[])
@@ -29,6 +27,66 @@ int main(int argc, char const *argv[])
 
     System A(root);
     P = A.getParticles();
+
+    // TR(i, P)
+    // {
+    //     std::cout   << (*i).traits.name << "\t"
+    //                 << (*i).traits.charge << "\t"
+    //                 << (*i).traits.s_norm << "\t"
+    //                 << (*i).state.r(0) << "\t"
+    //                 << (*i).state.r(1) << "\t"
+    //                 << (*i).state.r(2) << "\t"
+    //                 << std::endl;
+    // }
+    int cantidad_e = 0;
+    int cantidad_I = 0;
+
+    TR(i, P)
+    {
+        if ((*i).traits.name == "Ión")
+        {
+            cantidad_I++;
+        }
+        else if ((*i).traits.name == "Electrón")
+        {
+            cantidad_e++;
+        }
+    }
+
+
+    std::string blabla;
+    std::cout << "Cantidad Iones: " << cantidad_I << std::endl;
+    std::cout << "Cantidad Electrones: " << cantidad_e << std::endl;
+    blabla = ((cantidad_e == root["system"]["number_of_free_electrons"].asInt())? "true":"false");
+    std::cout << "Cantidad correcta de electrones: " << blabla << std::endl;
+    blabla = ((cantidad_I == (root["system"]["dimensions"]["width"].asInt()*root["system"]["dimensions"]["height"].asInt() * root["system"]["dimensions"]["lenght"].asInt()))? "true":"false");
+    std::cout << "Cantidad correcta de iones: " << blabla << std::endl;
+
+    std::cout << std::endl;
+    
+    TR(i, P)
+    {
+        TR(j, (*i).nbh)
+        {
+            // if (distancia(*i, **j) > root["system"]["cut_off_radius"].asFloat())
+            // {
+            //     std::cout << "Hay problemas con los vecinos" << std::endl;
+            // }
+            // else
+            // {
+            //     std::cout << "No hay problemas con los vecinos" << std::endl;
+            // }
+
+            std::cout << distancia(*i, **j) << std::endl;
+        }
+    }
+
+    // TR(i, P)
+    // {
+    //     std::cout << (*i).nbh.size() << std::endl;
+    // }
+
+    std::cout << std::endl;
 
     return 0;
 }

@@ -3,6 +3,8 @@
 
 System::System(Json::Value & root)
 {
+    this -> system_info = root;
+    this -> interaction_info = root["interaction_info"];
     this -> create_system(root);
 }
 
@@ -107,12 +109,15 @@ float System::energy()
 void System::updateNBH()
 {
     // Nothe the usage of a parameter stored in the Json Value :)
-    float cut_off = this -> system_info["cut_off"].asFloat();
+    float cut_off = this -> system_info["cut_off_radius"].asFloat();
     TR(p, this -> particles)
     {
         p -> nbh.clear();
+
+        
         TR(other, this -> particles)
         {
+        std::cout << p != other << std::endl;
             if (p != other)
             {
                 if (norm_2(p -> state.r - other -> state.r) <= cut_off)
@@ -130,9 +135,6 @@ void System::create_system(Json::Value & root)
     int lenght = 0;
     int height = 0;
     int l = 0;
- 
-    this -> system_info = root;
-    this -> interaction_info = root["interaction_info"];
 
     try {
         width = root["system"]["dimensions"]["width"].asInt();
@@ -144,6 +146,7 @@ void System::create_system(Json::Value & root)
         std::cout << e.what();
         throw BadDescriptor("Your system dimensions are bad configured.");
     }
+
     std::string structure = root["system"]["structure"].asString();
 
 
@@ -257,7 +260,7 @@ void System::create_system(Json::Value & root)
 
     // h_template.pp_i.push_back(heisenberg);
     // this -> hamiltonian
-    this -> updateNBH();
+    updateNBH();
 }
 
 
