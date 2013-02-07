@@ -3,8 +3,6 @@
 
 System::System(Json::Value & root)
 {
-    this -> system_info = root;
-    this -> interaction_info = root["interaction_info"];
     this -> create_system(root);
 }
 
@@ -110,6 +108,7 @@ void System::updateNBH()
 {
     // Nothe the usage of a parameter stored in the Json Value :)
     float cut_off = this -> system_info["cut_off_radius"].asFloat();
+    std::cout << "cut_off: " << cut_off << std::endl;
     TR(p, this -> particles)
     {
         p -> nbh.clear();
@@ -117,14 +116,16 @@ void System::updateNBH()
         
         TR(other, this -> particles)
         {
-        std::cout << p != other << std::endl;
+            // if (p == other) std::cout << p->state.r << " == " << other->state.r  << std::endl;
             if (p != other)
             {
                 if (norm_2(p -> state.r - other -> state.r) <= cut_off)
                 {
+                    std::cout << norm_2(p -> state.r - other -> state.r) << std::endl;
                     p -> nbh.push_back(&(*other));
                 }
             }
+            // std::cout << p->nbh.size() << std::endl;
         }
     }
 }
@@ -148,6 +149,9 @@ void System::create_system(Json::Value & root)
     }
 
     std::string structure = root["system"]["structure"].asString();
+
+    this -> system_info = root["system"];
+    this -> interaction_info = root["interaction_info"];
 
 
     Particle p_template;
