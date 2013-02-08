@@ -7,7 +7,7 @@ using namespace boost::numeric::ublas;
 float distancia(Particle a, Particle b)
 {
     return norm_2(a.state.r - b.state.r);
-}
+} no nada que pereza esa vieja
 
 int main(int argc, char const *argv[])
 {

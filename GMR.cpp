@@ -1,22 +1,18 @@
 #include "GMR.hpp"
 
-
-System::System(Json::Value & root)
+float heisenberg (Particle & p1, Particle & p2, Json::Value&)
 {
-    this -> create_system(root);
+    return 
+        - exp (norm_2 (p1.state.r - p2.state.r)) * 
+        inner_prod (p1.state.s, p2.state.s);
 }
 
-System::~System(){}
-
-vecf rand_vec ()
+float energy_contribution(Particle &p, Hamiltonian &H, Json::Value &info)
 {
-    vecf r(3);
-    float theta = 2.0f * M_PI * drand48();
-    float phi   = 1.0f * M_PI * drand48();
-    r(0) = sin (theta) * cos (phi);
-    r(1) = sin (theta) * sin (phi);
-    r(2) = cos (theta);
-    return r;
+    float energy = 0;
+    TR(nb, p.nbh) TR (ppi, H.pp_i) energy += (*ppi)(**nb, p, info);
+    TR(pfi, H.pf_i) pfi -> first (p, pfi -> second, info);
+    return energy;
 }
 
 void Particle::update_spin()
@@ -33,13 +29,6 @@ void Particle::roll_bak()
     this -> state = this -> old_state;
 }
 
-float energy_contribution(Particle &p, Hamiltonian &H, Json::Value &info)
-{
-    float energy = 0;
-    TR(nb, p.nbh) TR (ppi, H.pp_i) energy += (*ppi)(**nb, p, info);
-    TR(pfi, H.pf_i) pfi -> first (p, pfi -> second, info);
-    return energy;
-}
 
 const Hamiltonian& System::getHamiltonian()
 {
@@ -269,69 +258,85 @@ void System::create_system(Json::Value & root)
     updateNBH();
 }
 
-
-float heisenberg (Particle & p1, Particle & p2, Json::Value&)
-{
-    return 
-        - exp (norm_2 (p1.state.r - p2.state.r)) * 
-        inner_prod (p1.state.s, p2.state.s);
-}
-
-float electric (Particle & p, Field & e)
+System::System(Json::Value & root)
 {
     
-    return - p.traits.charge * inner_prod (e, p.state.r);
+    this -> create_system(root);
 }
 
-float el_primero (Particle & p1, Particle & p2)
+System::~System(){}
+
+vecf rand_vec ()
 {
-    
-    return - inner_prod (p1.state.s, p2.state.s);
+    vecf r(3);
+    float theta = 2.0f * M_PI * drand48();
+    float phi   = 1.0f * M_PI * drand48();
+    r(0) = sin (theta) * cos (phi);
+    r(1) = sin (theta) * sin (phi);
+    r(2) = cos (theta);
+    return r;
 }
 
-float H_r (Particle & p1, std::vector<Particle> S)
-{
-    float sum = 0;
-    for (int i = 0; i < S.size(); ++i)
-    {
-        sum += exp (norm_2 (p1.state.r - S[i].state.r) * inner_prod(p1.state.s, S[i].state.s));
-    }
 
-    return - sum;
-}
+// energies
+// {
 
-float dist_v_min(vecf ri, vecf rj, Json::Value & sys){
-    vecf e1 = (rj - ri);
+//     float electric (Particle & p, Field & e)
+//     {
+        
+//         return - p.traits.charge * inner_prod (e, p.state.r);
+//     }
 
-    vecf W(3);
-    W(0) = sys["dimensions"]["width"].asFloat() / sys["scale"].asFloat();
-    W(1) = sys["dimensions"]["lenght"].asFloat() / sys["scale"].asFloat();
-    W(2) = sys["dimensions"]["height"].asFloat() / sys["scale"].asFloat();
+//     float el_primero (Particle & p1, Particle & p2)
+//     {
+        
+//         return - inner_prod (p1.state.s, p2.state.s);
+//     }
 
-    vecf P(3);
-    P(0) = sys["P"]["x"].asFloat();
-    P(1) = sys["P"]["y"].asFloat();
-    P(2) = sys["P"]["z"].asFloat();
+//     float H_r (Particle & p1, std::vector<Particle> S)
+//     {
+//         float sum = 0;
+//         for (int i = 0; i < S.size(); ++i)
+//         {
+//             sum += exp (norm_2 (p1.state.r - S[i].state.r) * inner_prod(p1.state.s, S[i].state.s));
+//         }
 
-    vecf e2(3);
-    e2(0) = P(0) * W(0) - e1(0);
-    e2(1) = P(1) * W(1) - e1(1);
-    e2(2) = P(2) * W(2) - e1(2);
+//         return - sum;
+//     }
+
+//     float dist_v_min(vecf ri, vecf rj, Json::Value & sys){
+//         vecf e1 = (rj - ri);
+
+//         vecf W(3);
+//         W(0) = sys["dimensions"]["width"].asFloat() / sys["scale"].asFloat();
+//         W(1) = sys["dimensions"]["lenght"].asFloat() / sys["scale"].asFloat();
+//         W(2) = sys["dimensions"]["height"].asFloat() / sys["scale"].asFloat();
+
+//         vecf P(3);
+//         P(0) = sys["P"]["x"].asFloat();
+//         P(1) = sys["P"]["y"].asFloat();
+//         P(2) = sys["P"]["z"].asFloat();
+
+//         vecf e2(3);
+//         e2(0) = P(0) * W(0) - e1(0);
+//         e2(1) = P(1) * W(1) - e1(1);
+//         e2(2) = P(2) * W(2) - e1(2);
 
 
-    e1(0) = abs(e1(0));
-    e1(1) = abs(e1(1));
-    e1(2) = abs(e1(2));
+//         e1(0) = abs(e1(0));
+//         e1(1) = abs(e1(1));
+//         e1(2) = abs(e1(2));
 
-    e2(0) = abs(e2(0));
-    e2(1) = abs(e2(1));
-    e2(2) = abs(e2(2));
+//         e2(0) = abs(e2(0));
+//         e2(1) = abs(e2(1));
+//         e2(2) = abs(e2(2));
 
-    vecf salida(3);
+//         vecf salida(3);
 
-    salida(0) = (e1(0) <= e2(0))? e1(0): e2(0);
-    salida(1) = (e1(1) <= e2(1))? e1(1): e2(1);
-    salida(2) = (e1(2) <= e2(2))? e1(2): e2(2);
+//         salida(0) = (e1(0) <= e2(0))? e1(0): e2(0);
+//         salida(1) = (e1(1) <= e2(1))? e1(1): e2(1);
+//         salida(2) = (e1(2) <= e2(2))? e1(2): e2(2);
 
-    return norm_2(salida);
-}
+//         return norm_2(salida);
+//     }
+// }
