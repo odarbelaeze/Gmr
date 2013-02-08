@@ -108,6 +108,7 @@ public:
 // } //creo que es algo así pero pailangas
 
 vecf rand_vec ();
+float dist_v_min(vecf, vecf, Json::Value &);
 
 const PTraits eTraits = {name: "Electrón", charge: -1, s_norm: 1};
 const PTraits iTraits = {name: "Ión", charge: +1, s_norm: 1};

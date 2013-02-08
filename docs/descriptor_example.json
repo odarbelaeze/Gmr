@@ -17,6 +17,7 @@
 
         // The cut off radius for the neighboring
         "cut_off_radius": 1.1,
+        "P": {"x": 1, "y": 1, "z": 0},
 
         // The number of free electrons is still needed
         "number_of_free_electrons": 1000,

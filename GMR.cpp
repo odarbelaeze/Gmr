@@ -119,7 +119,8 @@ void System::updateNBH()
             // if (p == other) std::cout << p->state.r << " == " << other->state.r  << std::endl;
             if (p != other)
             {
-                if (norm_2(p -> state.r - other -> state.r) <= cut_off)
+                // if (norm_2(p -> state.r - other -> state.r) <= cut_off)
+                if (dist_v_min((*p).state.r, (*other).state.r, this -> system_info) <= cut_off)
                 {
                     // std::cout << norm_2(p -> state.r - other -> state.r) << std::endl;
                     p -> nbh.push_back(&(*other));
@@ -297,4 +298,40 @@ float H_r (Particle & p1, std::vector<Particle> S)
     }
 
     return - sum;
+}
+
+float dist_v_min(vecf ri, vecf rj, Json::Value & sys){
+    vecf e1 = (rj - ri);
+
+    vecf W(3);
+    W(0) = sys["dimensions"]["width"].asFloat() / sys["scale"].asFloat();
+    W(1) = sys["dimensions"]["lenght"].asFloat() / sys["scale"].asFloat();
+    W(2) = sys["dimensions"]["height"].asFloat() / sys["scale"].asFloat();
+
+    vecf P(3);
+    P(0) = sys["P"]["x"].asFloat();
+    P(1) = sys["P"]["y"].asFloat();
+    P(2) = sys["P"]["z"].asFloat();
+
+    vecf e2(3);
+    e2(0) = P(0) * W(0) - e1(0);
+    e2(1) = P(1) * W(1) - e1(1);
+    e2(2) = P(2) * W(2) - e1(2);
+
+
+    e1(0) = abs(e1(0));
+    e1(1) = abs(e1(1));
+    e1(2) = abs(e1(2));
+
+    e2(0) = abs(e2(0));
+    e2(1) = abs(e2(1));
+    e2(2) = abs(e2(2));
+
+    vecf salida(3);
+
+    salida(0) = (e1(0) <= e2(0))? e1(0): e2(0);
+    salida(1) = (e1(1) <= e2(1))? e1(1): e2(1);
+    salida(2) = (e1(2) <= e2(2))? e1(2): e2(2);
+
+    return norm_2(salida);
 }
