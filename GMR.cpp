@@ -29,7 +29,6 @@ void Particle::update_spin()
 
 void Particle::roll_bak()
 {
-    
     this -> state = this -> old_state;
 }
 
@@ -37,8 +36,16 @@ float energy_contribution(Particle &p, Hamiltonian &H, Json::Value &info)
 {
     float energy = 0;
     TR(nb, p.nbh) TR (ppi, H.pp_i) energy += (*ppi)(**nb, p, info);
-    TR(pfi, H.pf_i) pfi -> first (p, pfi -> second, info);
+    TR(pfi, H.pf_i) energy += pfi -> first (p, pfi -> second, info);
     return energy;
+}
+
+float total_energy_contribution (Particle &p, Hamiltonian &H, Json::Value &info)
+{
+    float totalEnergy = 0;
+    TR(nb, p.nbh) TR (ppi, H.pp_i) totalEnergy += 2.0 * (*ppi)(**nb, p, info);
+    TR(pfi, H.pf_i) totalEnergy += pfi -> first (p, pfi -> second, info);
+    return totalEnergy;
 }
 
 const Hamiltonian& System::getHamiltonian()
@@ -63,7 +70,6 @@ void System::setHamiltonian(const Hamiltonian& hamiltonian)
 
 void System::setThermalEnergy(const float thermal_energy)
 {
-    
     this -> thermal_energy = thermal_energy;
 }
 
@@ -74,9 +80,9 @@ void System::mcStep_thermal (OnEventCB cb)
     float random;
     TR (p, this -> particles)
     {
-        old_energy = energy_contribution(*p, this -> hamiltonian, this -> interaction_info);
+        old_energy = total_energy_contribution(*p, this -> hamiltonian, this -> interaction_info);
         p -> update_spin();
-        energy_delta = energy_contribution(*p, this -> hamiltonian, this -> interaction_info) - old_energy;
+        energy_delta = total_energy_contribution(*p, this -> hamiltonian, this -> interaction_info) - old_energy;
 
         if (energy_delta <= 0)
         {
@@ -106,61 +112,46 @@ float System::energy()
 
 void System::updateNBH()
 {
-    // Nothe the usage of a parameter stored in the Json Value :)
     float cut_off = this -> system_info["cut_off_radius"].asFloat();
-    std::cout << "cut_off: " << cut_off << std::endl;
     TR(p, this -> particles)
     {
         p -> nbh.clear();
-
-        
         TR(other, this -> particles)
-        {
-            // if (p == other) std::cout << p->state.r << " == " << other->state.r  << std::endl;
             if (p != other)
-            {
-                // if (norm_2(p -> state.r - other -> state.r) <= cut_off)
                 if (dist_v_min((*p).state.r, (*other).state.r, this -> system_info) <= cut_off)
-                {
-                    // std::cout << norm_2(p -> state.r - other -> state.r) << std::endl;
                     p -> nbh.push_back(&(*other));
-                    // std::cout << (*p).nbh.size() << std::endl;
-                }
-            }
-            // std::cout << p->nbh.size() << std::endl;
-        }
     }
 }
 
 void System::create_system(Json::Value & root)
 {
+    this -> system_info = root["system"];
+    this -> interaction_info = root["interaction_info"];
+
     int width = 0;
     int lenght = 0;
     int height = 0;
     int l = 0;
 
     try {
-        width = root["system"]["dimensions"]["width"].asInt();
-        lenght = root["system"]["dimensions"]["lenght"].asInt();
-        height = root["system"]["dimensions"]["height"].asInt();
-        l = root["system"]["scale"].asInt();
+        width = this -> system_info["dimensions"]["width"].asInt();
+        lenght = this -> system_info["dimensions"]["lenght"].asInt();
+        height = this -> system_info["dimensions"]["height"].asInt();
+        l = this -> system_info["scale"].asInt();
     }
     catch (std::exception &e) {
         std::cout << e.what();
-        throw BadDescriptor("Your system dimensions are bad configured.");
+        throw BadDescriptorException("Your system dimensions and scale are bad configured.");
     }
 
-    std::string structure = root["system"]["structure"].asString();
 
-    this -> system_info = root["system"];
-    this -> interaction_info = root["interaction_info"];
+    std::string structure = this -> system_info["structure"].asString();
 
 
     Particle p_template;
-    p_template.traits = iTraits;
-
-    this -> particles.clear();
     
+    p_template.traits = iTraits;
+    this -> particles.clear();
     if (structure == "sc")
     {
         for (int i = 0; i < width; ++i)
@@ -245,27 +236,27 @@ void System::create_system(Json::Value & root)
     }
     else
     {
-        
-        std::cout << "You should specific the structure in the Json file" << std::endl;
+        throw BadDescriptorException("The system structure " + structure + " is not supprted yet.");
     }
     
-    
-    // Fetch this from the root
-    int e_count = root["system"]["number_of_free_electrons"].asInt();
+    int e_count = 0;
+    try {
+        e_count = this -> system_info["number_of_free_electrons"].asInt();
+    }
+    catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+        throw BadDescriptorException("You must especify number_of_free_electrons in the Json descriptor.");
+    }
 
     p_template.traits = eTraits;
     for (int i = 0; i < e_count; ++i)
     {
-        p_template.state.r(0) = drand48() * width;
-        p_template.state.r(1) = drand48() * lenght;
-        p_template.state.r(2) = drand48() * height;
-        this -> particles.push_back(p_template);  
+        p_template.state.r(0) = drand48() * width * l;
+        p_template.state.r(1) = drand48() * lenght * l;
+        p_template.state.r(2) = drand48() * height * l;
+        this -> particles.push_back(p_template);
     }
 
-    Hamiltonian h_template;
-
-    // h_template.pp_i.push_back(heisenberg);
-    // this -> hamiltonian
     updateNBH();
 }
 
@@ -301,31 +292,25 @@ float H_r (Particle & p1, std::vector<Particle> S)
 }
 
 float dist_v_min(vecf ri, vecf rj, Json::Value & sys){
+    vecf dims(3);
+    dims(0) = sys["dimensions"]["width"].asFloat() * sys["scale"].asFloat();
+    dims(1) = sys["dimensions"]["lenght"].asFloat() * sys["scale"].asFloat();
+    dims(2) = sys["dimensions"]["height"].asFloat() * sys["scale"].asFloat();
+
+    boost::numeric::ublas::vector<int> P(3);
+    P(0) = sys["periodic_boundary_conditions"]["x"].asInt();
+    P(1) = sys["periodic_boundary_conditions"]["y"].asInt();
+    P(2) = sys["periodic_boundary_conditions"]["z"].asInt();
+
     vecf e1 = (rj - ri);
-
-    vecf W(3);
-    W(0) = sys["dimensions"]["width"].asFloat() / sys["scale"].asFloat();
-    W(1) = sys["dimensions"]["lenght"].asFloat() / sys["scale"].asFloat();
-    W(2) = sys["dimensions"]["height"].asFloat() / sys["scale"].asFloat();
-
-    vecf P(3);
-    P(0) = sys["P"]["x"].asFloat();
-    P(1) = sys["P"]["y"].asFloat();
-    P(2) = sys["P"]["z"].asFloat();
-
-    vecf e2(3);
-    e2(0) = P(0) * W(0) - e1(0);
-    e2(1) = P(1) * W(1) - e1(1);
-    e2(2) = P(2) * W(2) - e1(2);
-
-
     e1(0) = abs(e1(0));
     e1(1) = abs(e1(1));
     e1(2) = abs(e1(2));
-
-    e2(0) = abs(e2(0));
-    e2(1) = abs(e2(1));
-    e2(2) = abs(e2(2));
+    
+    vecf e2(3);
+    e2(0) = abs(P(0) * dims(0) - e1(0));
+    e2(1) = abs(P(1) * dims(1) - e1(1));
+    e2(2) = abs(P(2) * dims(2) - e1(2));
 
     vecf salida(3);
 

@@ -14,18 +14,20 @@
 #define TR(i, its) for(typeof(its.begin()) i = its.begin(); i != its.end(); i++)
 typedef boost::numeric::ublas::vector<float> vecf;
 
-class BadDescriptor: public std::exception
+class BadDescriptorException: public std::exception
 {
-    const std::string error;
 public:
-    BadDescriptor(): error("Unknown error") {}
-    BadDescriptor(const std::string _error): error(_error) {}
-    virtual ~BadDescriptor() throw() {}
+    BadDescriptorException(): error("Unknown error") {}
+    BadDescriptorException(const std::string _error): error(_error) {}
+    virtual ~BadDescriptorException() throw() {}
 
     virtual const char* what() const throw()
     {
         return ("The descriptor was bad configured: " + this -> error).data();
     }
+
+private:
+    const std::string error;
 };
 
 struct PState
@@ -46,7 +48,7 @@ struct Particle
 {
     PState state;
     PState old_state;
-    PTraits traits;//falta el ampersand
+    PTraits traits;
     std::vector<Particle*> nbh;
 
     void update_spin();
@@ -58,7 +60,7 @@ typedef vecf Field;
 
 typedef float (*PFI)(Particle &, Field &, Json::Value&);
 typedef float (*PPI)(Particle &, Particle &, Json::Value&);
-typedef void (*OnEventCB)(const Particle &, float);// En verdad va a tomar otras vainas
+typedef void (*OnEventCB)(const Particle &, float);
 
 struct Hamiltonian
 {
@@ -68,8 +70,9 @@ struct Hamiltonian
 
 // Acá va lo de las energías
 float energy_contribution (Particle &p, Hamiltonian &H, Json::Value &info);
+
 // Estrict and efficient implementation of the energy delta function
-float energy_delta (Particle &p, Hamiltonian &H, Json::Value &info);
+float total_energy_contribution (Particle &p, Hamiltonian &H, Json::Value &info);
 
 class System
 {
