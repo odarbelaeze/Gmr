@@ -1,22 +1,10 @@
 #include "GMR.hpp"
 
-
-System::System(Json::Value & root)
+float heisenberg (Particle & p1, Particle & p2, Json::Value&)
 {
-    this -> create_system(root);
-}
-
-System::~System(){}
-
-vecf rand_vec ()
-{
-    vecf r(3);
-    float theta = 2.0f * M_PI * drand48();
-    float phi   = 1.0f * M_PI * drand48();
-    r(0) = sin (theta) * cos (phi);
-    r(1) = sin (theta) * sin (phi);
-    r(2) = cos (theta);
-    return r;
+    return 
+        - exp (norm_2 (p1.state.r - p2.state.r)) * 
+        inner_prod (p1.state.s, p2.state.s);
 }
 
 void Particle::update_spin()
@@ -260,13 +248,26 @@ void System::create_system(Json::Value & root)
     updateNBH();
 }
 
-
-float heisenberg (Particle & p1, Particle & p2, Json::Value&)
+System::System(Json::Value & root)
 {
-    return 
-        - exp (norm_2 (p1.state.r - p2.state.r)) * 
-        inner_prod (p1.state.s, p2.state.s);
+    
+    this -> create_system(root);
 }
+
+System::~System(){}
+
+vecf rand_vec ()
+{
+    vecf r(3);
+    float theta = 2.0f * M_PI * drand48();
+    float phi   = 1.0f * M_PI * drand48();
+    r(0) = sin (theta) * cos (phi);
+    r(1) = sin (theta) * sin (phi);
+    r(2) = cos (theta);
+    return r;
+}
+
+
 
 float electric (Particle & p, Field & e)
 {
@@ -320,3 +321,4 @@ float dist_v_min(vecf ri, vecf rj, Json::Value & sys){
 
     return norm_2(salida);
 }
+
