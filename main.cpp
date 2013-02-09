@@ -2,9 +2,7 @@
 
 using namespace boost::numeric::ublas;
 
-float H_II(Particle& p1, Json::Value& interactionInfo);
-float H_EE(Particle& p1, Json::Value& interactionInfo);
-float H_IE(Particle& p1, Json::Value& interactionInfo);
+float H_PP(Particle & p1, Particle & p2, Json::Value & root);
 float H_E_Field(Particle& p1, Field& E, Json::Value& interactionInfo);
 
 int main(int argc, char const *argv[])
@@ -19,44 +17,27 @@ int main(int argc, char const *argv[])
     return 0;
 }
 
-
-float H_II(Particle& p1, Json::Value& interactionInfo)
+float H_PP(Particle & p1, Particle & p2, Json::Value & interactionInfo)
 {
-    float J = root["interaction_info"]["all"]["J"].asFloat();
     float sum = 0;
+    float J = interactionInfo["all"]["J"].asFloat();
+    float K_0 = interactionInfo["all"]["K_0"].asFloat();
+    float I_0 = interactionInfo["all"]["I_0"].asFloat();
 
-    TR(i, p1.nbh)
+    if (p1.traits.name == "Ión" && p2.traits.name == "Ión")
     {
-        sum += inner_prod(p1.state.s, ((**i)).state.s);
+        sum = -J * inner_prod(p1.state.s, p2.state.s);
     }
-
-    return -J * sum;
-}
-
-float H_EE(Particle& p1, Json::Value& interactionInfo)
-{
-    float K_0 = root["interaction_info"]["all"]["K_0"].asFloat();
-    float sum = 0;
-
-    TR(i, p1.nbh)
+    else if (p1.traits.name == "Electrón" && p2.traits.name == "Electrón")
     {
-        sum += K_0 * exp(-norm_2(p1.state.r - ((**i)).state.r)) * inner_prod(p1.state.s, ((**i)).state.s);
+        sum = K_0 * exp(-norm_2(p1.state.r - p2.state.r)) * inner_prod(p1.state.s, p2.state.s);
     }
-
-    return - sum;
-}
-
-float H_IE(Particle& p1, Json::Value& interactionInfo)
-{
-    float I_0 = root["interaction_info"]["all"]["I_0"].asFloat();
-    float sum = 0;
-
-    TR(i, p1.nbh)
+    else if ((p1.traits.name == "Electrón" && p2.traits.name == "Ión") || (p1.traits.name == "Ión" && p2.traits.name == "Electrón"))
     {
-        sum += I_0 * exp(-norm_2(p1.state.r - ((**i)).state.r)) * inner_prod(p1.state.s, ((**i)).state.s);
+        sum = I_0 * exp(-norm_2(p1.state.r - p2.state.r)) * inner_prod(p1.state.s, p2.state.s);
     }
+    return sum;
 
-    return - sum;
 }
 
 float H_E_Field(Particle& p1, Field& E, Json::Value& interactionInfo)
