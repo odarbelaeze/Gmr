@@ -1,5 +1,5 @@
 #include <fstream>
-#include "gmr.h"
+#include "../gmr.h"
 
 using namespace boost::numeric::ublas;
 

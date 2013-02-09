@@ -1,11 +1,6 @@
 bin/*
 dat/*
+tests/bin/*
 *.a
 *.o
 *.out
-json_test
-test
-fcc
-sc
-bcc
-exceptions

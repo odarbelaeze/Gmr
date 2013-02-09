@@ -68,10 +68,8 @@ struct Hamiltonian
     std::map<PFI, Field &> pf_i;
 };
 
-// Acá va lo de las energías
 float energy_contribution (Particle &p, Hamiltonian &H, Json::Value &info);
 
-// Estrict and efficient implementation of the energy delta function
 float total_energy_contribution (Particle &p, Hamiltonian &H, Json::Value &info);
 
 class System
@@ -85,6 +83,7 @@ private:
     float thermal_energy;
 
     void create_system (Json::Value &);     // This will be the actual function in wich the system is created.
+
 public:
     System();    // Toca mirar lo de JSON
     System(std::ifstream &);    // Toca mirar lo de JSON
@@ -104,12 +103,8 @@ public:
 
     void setThermalEnergy(const float);
     void setHamiltonian(const Hamiltonian&);
-};
 
-// PTraits& PTraits::operator=(const PTraits& t){
-//     this -> traits = t.traits;
-//     return *this;
-// } //creo que es algo así pero pailangas
+};
 
 vecf rand_vec ();
 float dist_v_min(vecf, vecf, Json::Value &);
