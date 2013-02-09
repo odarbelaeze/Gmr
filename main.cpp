@@ -1,4 +1,4 @@
-#include "GMR.hpp"
+#include "gmr.h"
 
 using namespace boost::numeric::ublas;
 

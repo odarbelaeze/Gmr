@@ -1,8 +1,6 @@
-#include "GMR.hpp"
-#include "GMR.cpp"
+#include "gmr.h"
 
-
-float dist_v_min___(vecf ri, vecf rj, Json::Value & root){
+float dist_v_min(vecf ri, vecf rj, Json::Value & root){
     vecf e1 = (rj - ri);
 
     vecf W(3);
