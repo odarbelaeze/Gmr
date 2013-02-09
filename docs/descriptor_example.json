@@ -17,7 +17,7 @@
 
         // The cut off radius for the neighboring
         "cut_off_radius": 1.1,
-        "P": {"x": 1, "y": 1, "z": 0},
+        "periodic_boundary_conditions": {"x": 1, "y": 1, "z": 0},
 
         // The number of free electrons is still needed
         "number_of_free_electrons": 1000,
@@ -52,5 +52,9 @@
         "zeeman": {
 
         }
+    },
+    "update_policy": {
+        "radius_s": 1.0,
+        "radius_r": 1.0
     }
 }

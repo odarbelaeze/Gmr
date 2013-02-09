@@ -51,8 +51,8 @@ struct Particle
     PTraits traits;
     std::vector<Particle*> nbh;
 
-    void update_spin();
-    void update_r();
+    void update_spin(float);
+    void update_r(float);
     void roll_bak();
 };
 
@@ -80,6 +80,7 @@ private:
     Hamiltonian hamiltonian;
     Json::Value interaction_info;
     Json::Value system_info;
+    Json::Value update_policy;
     std::vector<Particle> particles;
     float thermal_energy;
 

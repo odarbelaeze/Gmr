@@ -1,16 +1,10 @@
 #include "GMR.hpp"
 
-float heisenberg (Particle & p1, Particle & p2, Json::Value&)
-{
-    return 
-        - exp (norm_2 (p1.state.r - p2.state.r)) * 
-        inner_prod (p1.state.s, p2.state.s);
-}
 
-void Particle::update_spin()
+void Particle::update_spin(float radius)
 {
     this -> old_state = state; 
-    this -> state.s += rand_vec();
+    this -> state.s += radius * rand_vec();
     this -> state.s /= norm_2(this -> state.s);
     this -> state.s *= this -> traits.s_norm;
 }
@@ -18,6 +12,14 @@ void Particle::update_spin()
 void Particle::roll_bak()
 {
     this -> state = this -> old_state;
+}
+
+void Particle::update_r(float radius)
+{
+    this -> old_state = state; 
+    this -> state.r += radius * rand_vec();
+    // this -> state.r /= norm_2(this -> state.s);
+    // this -> state.r *= this -> traits.s_norm;
 }
 
 float energy_contribution(Particle &p, Hamiltonian &H, Json::Value &info)
@@ -69,7 +71,7 @@ void System::mcStep_thermal (OnEventCB cb)
     TR (p, this -> particles)
     {
         old_energy = total_energy_contribution(*p, this -> hamiltonian, this -> interaction_info);
-        p -> update_spin();
+        p -> update_spin(this -> update_policy["radius_s"].asFloat());
         energy_delta = total_energy_contribution(*p, this -> hamiltonian, this -> interaction_info) - old_energy;
 
         if (energy_delta <= 0)
@@ -115,6 +117,7 @@ void System::create_system(Json::Value & root)
 {
     this -> system_info = root["system"];
     this -> interaction_info = root["interaction_info"];
+    this -> update_policy = root["update_policy"];
 
     int width = 0;
     int lenght = 0;
@@ -245,7 +248,7 @@ void System::create_system(Json::Value & root)
         this -> particles.push_back(p_template);
     }
 
-    updateNBH();
+    this -> updateNBH();
 }
 
 System::System(Json::Value & root)
@@ -291,6 +294,15 @@ float H_r (Particle & p1, std::vector<Particle> S)
 
     return - sum;
 }
+
+float heisenberg (Particle & p1, Particle & p2, Json::Value&)
+{
+    return 
+        - exp (norm_2 (p1.state.r - p2.state.r)) * 
+        inner_prod (p1.state.s, p2.state.s);
+}
+
+
 
 float dist_v_min(vecf ri, vecf rj, Json::Value & sys){
     vecf dims(3);
