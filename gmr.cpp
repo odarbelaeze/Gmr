@@ -25,117 +25,93 @@ void Particle::update_r(float radius)
 
 
 
-float energy_contribution(Particle &p, Hamiltonian &H, Json::Value &info)
+System::System(const std::string fileName)
 {
-    float energy = 0;
-    TR(nb, p.nbh) TR (ppi, H.pp_i) energy += (*ppi)(**nb, p, info);
-    TR(pfi, H.pf_i) energy += pfi -> first (p, pfi -> second, info);
-    return energy;
-}
+    Json::Value root;
+    Json::Reader reader;
 
-
-
-float total_energy_contribution (Particle &p, Hamiltonian &H, Json::Value &info)
-{
-    float totalEnergy = 0;
-    TR(nb, p.nbh) TR (ppi, H.pp_i) totalEnergy += 2.0 * (*ppi)(**nb, p, info);
-    TR(pfi, H.pf_i) totalEnergy += pfi -> first (p, pfi -> second, info);
-    return totalEnergy;
-}
-
-
-
-const Hamiltonian& System::getHamiltonian()
-{
-    return this -> hamiltonian;
-}
-
-
-
-const std::vector<Particle>& System::getParticles()
-{
-    return this -> particles;
-}
-
-
-
-float System::getThermalEnergy()
-{
-    return this -> thermal_energy;
-}
-
-
-
-void System::setHamiltonian(const Hamiltonian& hamiltonian)
-{
-   
-    this -> hamiltonian = hamiltonian;
-}
-
-
-
-void System::setThermalEnergy(const float thermal_energy)
-{
-    this -> thermal_energy = thermal_energy;
-}
-
-
-
-void System::mcStep_thermal (OnEventCB cb)
-{
-    float old_energy;
-    float energy_delta;
-    float random;
-    TR (p, this -> particles)
+    std::ifstream descriptor (fileName.data());
+    bool parsingSuccessful = reader.parse(descriptor, root, false);
+    if (!parsingSuccessful)
     {
-        old_energy = total_energy_contribution(*p, this -> hamiltonian, this -> interaction_info);
-        p -> update_spin(this -> update_policy["radius_s"].asFloat());
-        energy_delta = total_energy_contribution(*p, this -> hamiltonian, this -> interaction_info) - old_energy;
-
-        if (energy_delta <= 0)
-        {
-            cb(*p, energy_delta);
-        }
-        else
-        {
-            random = drand48();
-            if (random <= exp(- energy_delta / this -> thermal_energy))
-            {
-                cb (*p, energy_delta);
-            }
-            else
-            {
-                p -> roll_bak();
-            }
-        }   
+        // report to the user the failure and their locations in the document.
+        std::cout  << "Failed to parse configuration\n"
+                   << reader.getFormattedErrorMessages();
+        throw BadDescriptorException("The descriptor is not a valid json file.");
     }
-}
 
-float System::energy()
-{
-    float energy = 0;
-    TR (p, this -> particles) energy += energy_contribution(*p, this -> hamiltonian, this -> interaction_info);
-    return energy;
+    this -> create_system (root);
 }
 
 
-
-void System::updateNBH()
+System::System(const char* fileName)
 {
-    float cut_off = this -> system_info["cut_off_radius"].asFloat();
-    TR(p, this -> particles)
+    Json::Value root;
+    Json::Reader reader;
+
+    std::ifstream descriptor (fileName);
+    bool parsingSuccessful = reader.parse(descriptor, root, false);
+    if (!parsingSuccessful)
     {
-        p -> nbh.clear();
-        TR(other, this -> particles)
-            if (p != other)
-                if (dist_v_min((*p).state.r, (*other).state.r, this -> system_info) <= cut_off)
-                    p -> nbh.push_back(&(*other));
+        // report to the user the failure and their locations in the document.
+        std::cout  << "Failed to parse configuration\n"
+                   << reader.getFormattedErrorMessages();
+        throw BadDescriptorException("The descriptor is not a valid json file.");
     }
+
+    this -> create_system (root);
+}
+
+
+System::System(std::ifstream & descriptor)
+{
+    Json::Value root;
+    Json::Reader reader;
+
+    bool parsingSuccessful = reader.parse(descriptor, root, false);
+    if (!parsingSuccessful)
+    {
+        // report to the user the failure and their locations in the document.
+        std::cout  << "Failed to parse configuration\n"
+                   << reader.getFormattedErrorMessages();
+        throw BadDescriptorException("The descriptor is not a valid json file.");
+    }
+
+    this -> create_system (root);
+}
+
+
+System::System(std::istream & descriptor)
+{
+    Json::Value root;
+    Json::Reader reader;
+
+    bool parsingSuccessful = reader.parse(descriptor, root, false);
+    if (!parsingSuccessful)
+    {
+        // report to the user the failure and their locations in the document.
+        std::cout  << "Failed to parse configuration\n"
+                   << reader.getFormattedErrorMessages();
+        throw BadDescriptorException("The descriptor is not a valid json file.");
+    }
+
+    this -> create_system (root);
 }
 
 
 
-void System::create_system(Json::Value & root)
+System::System(const Json::Value & root)
+{
+    this -> create_system(root);
+}
+
+
+
+System::~System(){}
+
+
+
+void System::create_system(const Json::Value & root)
 {
     this -> system_info = root["system"];
     this -> interaction_info = root["interaction_info"];
@@ -275,15 +251,115 @@ void System::create_system(Json::Value & root)
 
 
 
-System::System(Json::Value & root)
+const Hamiltonian& System::getHamiltonian()
 {
-    
-    this -> create_system(root);
+    return this -> hamiltonian;
 }
 
 
 
-System::~System(){}
+const std::vector<Particle>& System::getParticles()
+{
+    return this -> particles;
+}
+
+
+
+float System::getThermalEnergy()
+{
+    return this -> thermal_energy;
+}
+
+
+
+void System::setHamiltonian(const Hamiltonian& hamiltonian)
+{
+   
+    this -> hamiltonian = hamiltonian;
+}
+
+
+
+void System::setThermalEnergy(const float thermal_energy)
+{
+    this -> thermal_energy = thermal_energy;
+}
+
+
+
+void System::mcStep_thermal (OnEventCB cb)
+{
+    float old_energy;
+    float energy_delta;
+    float random;
+    TR (p, this -> particles)
+    {
+        old_energy = total_energy_contribution(*p, this -> hamiltonian, this -> interaction_info);
+        p -> update_spin(this -> update_policy["radius_s"].asFloat());
+        energy_delta = total_energy_contribution(*p, this -> hamiltonian, this -> interaction_info) - old_energy;
+
+        if (energy_delta <= 0)
+        {
+            cb(*p, energy_delta);
+        }
+        else
+        {
+            random = drand48();
+            if (random <= exp(- energy_delta / this -> thermal_energy))
+            {
+                cb (*p, energy_delta);
+            }
+            else
+            {
+                p -> roll_bak();
+            }
+        }   
+    }
+}
+
+
+
+float System::energy()
+{
+    float energy = 0;
+    TR (p, this -> particles) energy += energy_contribution(*p, this -> hamiltonian, this -> interaction_info);
+    return energy;
+}
+
+
+
+void System::updateNBH()
+{
+    float cut_off = this -> system_info["cut_off_radius"].asFloat();
+    TR(p, this -> particles)
+    {
+        p -> nbh.clear();
+        TR(other, this -> particles)
+            if (p != other)
+                if (dist_v_min((*p).state.r, (*other).state.r, this -> system_info) <= cut_off)
+                    p -> nbh.push_back(&(*other));
+    }
+}
+
+
+
+float energy_contribution(Particle &p, Hamiltonian &H, Json::Value &info)
+{
+    float energy = 0;
+    TR(nb, p.nbh) TR (ppi, H.pp_i) energy += (*ppi)(**nb, p, info);
+    TR(pfi, H.pf_i) energy += pfi -> first (p, pfi -> second, info);
+    return energy;
+}
+
+
+
+float total_energy_contribution (Particle &p, Hamiltonian &H, Json::Value &info)
+{
+    float totalEnergy = 0;
+    TR(nb, p.nbh) TR (ppi, H.pp_i) totalEnergy += 2.0 * (*ppi)(**nb, p, info);
+    TR(pfi, H.pf_i) totalEnergy += pfi -> first (p, pfi -> second, info);
+    return totalEnergy;
+}
 
 
 

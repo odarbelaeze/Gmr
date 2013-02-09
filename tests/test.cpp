@@ -22,6 +22,7 @@ int main(int argc, char const *argv[])
         // report to the user the failure and their locations in the document.
         std::cout  << "Failed to parse configuration\n"
                    << reader.getFormattedErrorMessages();
+        std::exit (EXIT_FAILURE);
     }
 
     System A(root);

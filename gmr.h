@@ -1,15 +1,18 @@
 #ifndef GMR_HPP_
 #define GMR_HPP_
 
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/numeric/ublas/vector.hpp>
 #include <cmath>
+#include <cstdlib>
 #include <exception>
 #include <fstream>
-#include <jsoncpp/json/json.h>
 #include <map>
 #include <string>
 #include <vector>
+
+#include <jsoncpp/json/json.h>
+
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/ublas/vector.hpp>
 
 #define TR(i, its) for(typeof(its.begin()) i = its.begin(); i != its.end(); i++)
 typedef boost::numeric::ublas::vector<float> vecf;
@@ -82,13 +85,14 @@ private:
     std::vector<Particle> particles;
     float thermal_energy;
 
-    void create_system (Json::Value &);     // This will be the actual function in wich the system is created.
+    void create_system (const Json::Value &);     // This will be the actual function in wich the system is created.
 
 public:
-    System();    // Toca mirar lo de JSON
-    System(std::ifstream &);    // Toca mirar lo de JSON
-    System(std::istream &);     // Toca mirar lo de JSON
-    System(Json::Value &);      // Toca mirar lo de JSON
+    System(const char*);
+    System(const std::string);
+    System(std::ifstream &);
+    System(std::istream &);
+    System(const Json::Value &);
     ~System();
 
     void mcStep_thermal(OnEventCB cb);      // Mirar argunmentos
@@ -106,7 +110,7 @@ public:
 
 };
 
-vecf rand_vec ();
+vecf  rand_vec ();
 float dist_v_min(vecf, vecf, Json::Value &);
 
 const PTraits eTraits = {name: "Electrón", charge: -1, s_norm: 1};

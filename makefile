@@ -1,8 +1,9 @@
 LDFLAGS=-ljsoncpp
+DEBUGFLAGS=-g3 -pg
 
 debug:
-	g++ -c -O3 gmr.cpp
-	g++ -g3 -pg -o main main.cpp gmr.o $(LDFLAGS)
+	g++ -c -O3 $(DEBUGFLAGS) -o bin/gmr.o gmr.cpp
+	g++ $(DEBUGFLAGS) -o bin/main main.cpp bin/gmr.o $(LDFLAGS)
 
 test:
 	g++ -o tests/bin/sc tests/sc.cpp
