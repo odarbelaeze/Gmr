@@ -1,6 +1,5 @@
 #include "gmr.h"
 
-
 void Particle::update_spin(float radius)
 {
     this -> old_state = state; 
@@ -9,18 +8,22 @@ void Particle::update_spin(float radius)
     this -> state.s *= this -> traits.s_norm;
 }
 
+
+
 void Particle::roll_bak()
 {
     this -> state = this -> old_state;
 }
 
+
+
 void Particle::update_r(float radius)
 {
     this -> old_state = state; 
     this -> state.r += radius * rand_vec();
-    // this -> state.r /= norm_2(this -> state.s);
-    // this -> state.r *= this -> traits.s_norm;
 }
+
+
 
 float energy_contribution(Particle &p, Hamiltonian &H, Json::Value &info)
 {
@@ -30,6 +33,8 @@ float energy_contribution(Particle &p, Hamiltonian &H, Json::Value &info)
     return energy;
 }
 
+
+
 float total_energy_contribution (Particle &p, Hamiltonian &H, Json::Value &info)
 {
     float totalEnergy = 0;
@@ -38,19 +43,28 @@ float total_energy_contribution (Particle &p, Hamiltonian &H, Json::Value &info)
     return totalEnergy;
 }
 
+
+
 const Hamiltonian& System::getHamiltonian()
 {
     return this -> hamiltonian;
- }
+}
 
- const std::vector<Particle>& System::getParticles()
- {
+
+
+const std::vector<Particle>& System::getParticles()
+{
     return this -> particles;
- }
- float System::getThermalEnergy()
- {
+}
+
+
+
+float System::getThermalEnergy()
+{
     return this -> thermal_energy;
 }
+
+
 
 void System::setHamiltonian(const Hamiltonian& hamiltonian)
 {
@@ -58,10 +72,14 @@ void System::setHamiltonian(const Hamiltonian& hamiltonian)
     this -> hamiltonian = hamiltonian;
 }
 
+
+
 void System::setThermalEnergy(const float thermal_energy)
 {
     this -> thermal_energy = thermal_energy;
 }
+
+
 
 void System::mcStep_thermal (OnEventCB cb)
 {
@@ -100,6 +118,8 @@ float System::energy()
     return energy;
 }
 
+
+
 void System::updateNBH()
 {
     float cut_off = this -> system_info["cut_off_radius"].asFloat();
@@ -112,6 +132,8 @@ void System::updateNBH()
                     p -> nbh.push_back(&(*other));
     }
 }
+
+
 
 void System::create_system(Json::Value & root)
 {
@@ -251,13 +273,19 @@ void System::create_system(Json::Value & root)
     this -> updateNBH();
 }
 
+
+
 System::System(Json::Value & root)
 {
     
     this -> create_system(root);
 }
 
+
+
 System::~System(){}
+
+
 
 vecf rand_vec ()
 {
@@ -272,48 +300,18 @@ vecf rand_vec ()
 
 
 
-float electric (Particle & p, Field & e)
-{
+float dist_v_min(vecf ri, vecf rj, Json::Value & systemInfo){
+    float scale = systemInfo["scale"].asFloat();
     
-    return - p.traits.charge * inner_prod (e, p.state.r);
-}
-
-float el_primero (Particle & p1, Particle & p2)
-{
-    
-    return - inner_prod (p1.state.s, p2.state.s);
-}
-
-float H_r (Particle & p1, std::vector<Particle> S)
-{
-    float sum = 0;
-    for (int i = 0; i < S.size(); ++i)
-    {
-        sum += exp (norm_2 (p1.state.r - S[i].state.r) * inner_prod(p1.state.s, S[i].state.s));
-    }
-
-    return - sum;
-}
-
-float heisenberg (Particle & p1, Particle & p2, Json::Value&)
-{
-    return 
-        - exp (norm_2 (p1.state.r - p2.state.r)) * 
-        inner_prod (p1.state.s, p2.state.s);
-}
-
-
-
-float dist_v_min(vecf ri, vecf rj, Json::Value & sys){
     vecf dims(3);
-    dims(0) = sys["dimensions"]["width"].asFloat() * sys["scale"].asFloat();
-    dims(1) = sys["dimensions"]["lenght"].asFloat() * sys["scale"].asFloat();
-    dims(2) = sys["dimensions"]["height"].asFloat() * sys["scale"].asFloat();
+    dims(0) = systemInfo["dimensions"]["width"].asFloat() * scale;
+    dims(1) = systemInfo["dimensions"]["lenght"].asFloat() * scale;
+    dims(2) = systemInfo["dimensions"]["height"].asFloat() * scale;
 
     boost::numeric::ublas::vector<int> P(3);
-    P(0) = sys["periodic_boundary_conditions"]["x"].asInt();
-    P(1) = sys["periodic_boundary_conditions"]["y"].asInt();
-    P(2) = sys["periodic_boundary_conditions"]["z"].asInt();
+    P(0) = systemInfo["periodic_boundary_conditions"]["x"].asInt();
+    P(1) = systemInfo["periodic_boundary_conditions"]["y"].asInt();
+    P(2) = systemInfo["periodic_boundary_conditions"]["z"].asInt();
 
     vecf e1 = (rj - ri);
     e1(0) = abs(e1(0));
