@@ -2,6 +2,7 @@ bin/*
 dat/*
 *.a
 *.o
+*.out
 json_test
 test
 fcc
